@@ -72,17 +72,20 @@ class Snake{
     
     for (int i = 0; i < size; i++)
     {
-      fill(255,228,196);
+      if (penorBox.checked)fill(255,228,196);
+      else fill(255,255,0);
       if (dead) fill (255,0,0);
-      if (i == 0)rect(x[i],y[i],30,30,tl,tr,br,bl); 
+      if (i == 0 && penorBox.checked)rect(x[i],y[i],30,30,tl,tr,br,bl); 
       else rect(x[i],y[i],30,30);
     }
     
+    if(penorBox.checked){
     ellipse(ball1x,ball1y,30,30);
     ellipse(ball2x,ball2y,30,30);
     
     fill(0);
     ellipse(x[0]+15+holeX,y[0]+15+holeY,5,5);
+    }
   }
   
   void update(){

@@ -14,16 +14,22 @@ import java.io.IOException;
 
 public class Snake_Project extends PApplet {
 
-Snake s;
+Snake s; //<>//
 Food f;
 int points = 0;
 int SPEED = 5; // 1-10
+ArrayList<Checkbox> chkBoxes= new ArrayList<Checkbox>();
+Checkbox penorBox;
+boolean paused = false;
 
 public void setup()
 {
   
   s = new Snake();
   f = new Food();
+  
+  penorBox = new Checkbox(width-20,5,"Penor mode");
+  chkBoxes.add(penorBox);
 }
 
 int backCounter = 0;
@@ -31,21 +37,33 @@ public void draw()
 {
   background(0,0,255);
   
+  if (!paused){
   s.update();
   s.display();
   f.display();
-  
+  } else {
+   textSize(50);
+   text("PAUSED.\nSPACEBAR TO UNPAUSE.",width/2-300,height/2+20);
+  }
   
   //menu
   fill(200);
   rect(0,0,width,30);
   
-  
-  
+  //menu items
   fill(0);
   textSize(20);
   text("POINTS: " + points ,0,20);
   
+  for(Checkbox chk : chkBoxes)
+  {
+    chk.display();
+  }
+  
+  
+  
+  
+  //else
   if (s.dead) {
    textSize(50);
    text("YOU DED. "+ points +" POINTS.\nDO BETTER NEXT TIME.\nPRESS ENTER TO RESTART",(width/2)-300,(height/2)-75);
@@ -55,7 +73,10 @@ public void draw()
 
 public void mousePressed()
 {
-  
+  for (Checkbox chk : chkBoxes)
+  {
+   if (mouseX >= chk.x && mouseX <= chk.x + chk.size && mouseY >= chk.y && mouseY <= chk.y+chk.size) chk.click();
+  }
 }
 
 public void keyPressed(){
@@ -63,6 +84,7 @@ public void keyPressed(){
   else if (keyCode == DOWN) s.facing[0] = direction.down;
   else if (keyCode == LEFT) s.facing[0] = direction.left;
   else if (keyCode == RIGHT) s.facing[0] = direction.right;
+  else if (key == ' ') paused = !paused;
   else if (s.dead && keyCode == ENTER) {
    s = new Snake();
    f = new Food();
@@ -83,14 +105,73 @@ class Button{
    
  
 }
+class Checkbox
+{
+ int x,y;
+ int size = 15;
+ boolean checked = false;
+ String label = null;
+ 
+ Checkbox(int X, int Y)
+ {
+   x = X;
+   y = Y;
+ }
+ 
+ Checkbox(int X, int Y, String lbl)
+ {
+   x = X;
+   y = Y;
+   label = lbl;
+ }
+ 
+ public void click(){
+  checked = !checked; 
+ }
+ 
+ public void display(){
+   stroke(0);
+   fill(240);
+   rect(x,y,size,size,5,5,5,5);
+   textSize(size);
+   char symbol;
+   if (checked) symbol = '\u2713';
+   else symbol = ' ';
+   fill(0);
+   text(symbol,x+2,y+size);
+   
+   if (label != null){
+     fill(0);
+     float txtWidth = textWidth(label);
+     text(label,x-txtWidth-5,y+size);
+   }
+ }
+}
 class Food{
  int x = 31;
  int y = 31;
  int size = 20;
  
  Food(){
+   
+   while (true){
+   boolean collide = false;
    while(x%30!=0) x =  (int)random(width);
    while(y%30!=0) y = (int)random(height-30)+30;
+   
+   for(int i = 0; i < s.size; i++)
+   {
+     if (x==s.x[i] && y==s.y[i]) {
+       collide = true;
+       x=31;
+       y=31;
+       break;
+     }
+   }
+   
+   if (!collide) break;
+   }
+   
  }
  
  public void display()
@@ -173,17 +254,20 @@ class Snake{
     
     for (int i = 0; i < size; i++)
     {
-      fill(255,228,196);
+      if (penorBox.checked)fill(255,228,196);
+      else fill(255,255,0);
       if (dead) fill (255,0,0);
-      if (i == 0)rect(x[i],y[i],30,30,tl,tr,br,bl); 
+      if (i == 0 && penorBox.checked)rect(x[i],y[i],30,30,tl,tr,br,bl); 
       else rect(x[i],y[i],30,30);
     }
     
+    if(penorBox.checked){
     ellipse(ball1x,ball1y,30,30);
     ellipse(ball2x,ball2y,30,30);
     
     fill(0);
     ellipse(x[0]+15+holeX,y[0]+15+holeY,5,5);
+    }
   }
   
   public void update(){

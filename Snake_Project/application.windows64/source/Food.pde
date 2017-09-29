@@ -4,8 +4,25 @@ class Food{
  int size = 20;
  
  Food(){
+   
+   while (true){
+   boolean collide = false;
    while(x%30!=0) x =  (int)random(width);
    while(y%30!=0) y = (int)random(height-30)+30;
+   
+   for(int i = 0; i < s.size; i++)
+   {
+     if (x==s.x[i] && y==s.y[i]) {
+       collide = true;
+       x=31;
+       y=31;
+       break;
+     }
+   }
+   
+   if (!collide) break;
+   }
+   
  }
  
  void display()
